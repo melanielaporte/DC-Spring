@@ -1,20 +1,62 @@
-// Wait for the DOM to load
-document.addEventListener("DOMContentLoaded", () => {
-  // Selectors
-  const navLinks = document.querySelectorAll("nav a");
+let petals = [];
+let petalImage;
+let petalCount = 0;
+let maxPetals = 100;
+let minPetals = 25;
+let petalVariance = 10;  
 
-  // Event Listener Example
-  navLinks.forEach(link => {
-    link.addEventListener("click", event => {
-      event.preventDefault(); // Prevent default anchor behavior
-      const sectionId = event.target.getAttribute("href").substring(1); // Get target section
-      const section = document.getElementById(sectionId);
+function preload() {
+  petalImage = loadImage('/images/cherryBlossom.png'); 
+}
 
-      if (section) {
-        section.scrollIntoView({ behavior: "smooth" }); // Smooth scroll to section
-      }
-    });
-  });
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  // Create an initial set of petals to fall from the top
+  for (let i = 0; i < minPetals; i++) {
+    let petal = new Petal(random(width), random(-100, -50)); 
+    petals.push(petal);
+  }
+}
 
-  console.log("JavaScript loaded and ready!");
-});
+function draw() {
+  background(173, 216, 230); 
+
+  for (let i = petals.length - 1; i >= 0; i--) {
+    petals[i].update();
+    petals[i].show();
+
+    if (petals[i].y > height) {
+      petals.splice(i, 1);
+    }
+  }
+
+  if (petalCount % petalVariance === 0) {
+    let newPetals = int(random(minPetals, maxPetals)); 
+    for (let i = 0; i < newPetals; i++) {
+      petals.push(new Petal(random(width), random(-100, -50))); 
+    }
+  }
+  
+  petalCount++;
+}
+
+class Petal {
+  constructor(x, y) {
+    this.pos = createVector(x, y);
+    this.vel = createVector(random(-1, 1), random(1, 3)); 
+    this.acc = createVector();
+    this.size = random(15, 30); 
+    this.image = petalImage;
+  }
+
+  update() {
+    this.pos.add(this.vel);
+    this.vel.add(this.acc);
+    this.acc.mult(0); //
+  }
+
+  show() {
+    imageMode(CENTER);
+    image(this.image, this.pos.x, this.pos.y, this.size, this.size); 
+  }
+}
